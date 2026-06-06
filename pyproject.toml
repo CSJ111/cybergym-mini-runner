@@ -1,0 +1,12 @@
+[project]
+name = "cybergym-mini-runner"
+version = "0.1.0"
+description = "Minimal CyberGym baseline evaluation runner"
+requires-python = ">=3.11"
+dependencies = [
+  "openai>=1.75.0",
+  "requests>=2.26.0",
+]
+
+[tool.ruff]
+line-length = 120
