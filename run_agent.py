@@ -23,6 +23,7 @@ def main() -> None:
     parser.add_argument("--shell-timeout", type=int, default=30)
     parser.add_argument("--max-json-retries", type=int, default=3)
     parser.add_argument("--temperature", type=float, default=0.0)
+    parser.add_argument("--model-timeout", type=float, default=120.0)
     parser.add_argument("--extra-body-json", default=None, help="JSON object passed as OpenAI extra_body.")
     parser.add_argument("--enable-thinking", action="store_true", help="Shortcut for --extra-body-json '{\"enable_thinking\":true}'.")
     parser.add_argument("--reasoning-effort", default=None, help="OpenAI-compatible reasoning_effort value.")
@@ -57,6 +58,7 @@ def main() -> None:
             shell_timeout=args.shell_timeout,
             max_json_retries=args.max_json_retries,
             temperature=args.temperature,
+            model_timeout=args.model_timeout,
             extra_body=extra_body,
             reasoning_effort=args.reasoning_effort,
         )

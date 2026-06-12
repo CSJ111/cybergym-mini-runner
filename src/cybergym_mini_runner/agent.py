@@ -37,6 +37,7 @@ class AgentRunConfig:
     shell_timeout: int = 30
     max_json_retries: int = 3
     temperature: float = 0.0
+    model_timeout: float = 120.0
     extra_body: dict[str, Any] | None = None
     reasoning_effort: str | None = None
 
@@ -68,6 +69,7 @@ def run_agent(config: AgentRunConfig) -> FinalReport:
         ModelConfig.from_env(
             config.model,
             temperature=config.temperature,
+            timeout=config.model_timeout,
             extra_body=config.extra_body,
             reasoning_effort=config.reasoning_effort,
         )
@@ -84,7 +86,22 @@ def run_agent(config: AgentRunConfig) -> FinalReport:
         if time.monotonic() - start > config.timeout_seconds:
             failure_type = "timeout"
             break
-        raw = client.complete(messages)
+        try:
+            raw = client.complete(messages)
+        except Exception as exc:
+            failure_type = "timeout" if "timeout" in type(exc).__name__.lower() or "timed out" in str(exc).lower() else "tool_error"
+            step += 1
+            writer.append(
+                StepRecord(
+                    step=step,
+                    thought="",
+                    action="model_error",
+                    observation=f"{type(exc).__name__}: {exc}",
+                    timestamp=utc_now(),
+                    exit_code=None,
+                )
+            )
+            break
         try:
             action = parse_action(raw)
             consecutive_json_errors = 0
